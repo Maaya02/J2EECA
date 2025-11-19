@@ -3,7 +3,10 @@
 <%@ page import="java.sql.*"%>
 <%@ page import="java.security.*"%>
 <%@ page import="java.nio.charset.StandardCharsets"%>
-<%@ page import="java.util.Base64"%>
+<%@ page import="java.util.*"%>
+<%@ page import="teamplateForCategories.categories"%>
+<%@ page import="java.util.Objects" %>
+	
 <!DOCTYPE html>
 <html lang="en">
 
@@ -167,28 +170,7 @@ to {
 
 					<li class="nav-item dropdown mega-dropdown"><a
 						class="nav-link dropdown-toggle" href="#" role="button"
-						aria-expanded="false"> Services </a> <%-- <%
-                		try {
-                			Class.forName("org.postgresql.Driver");
-                			
-                			// url = ""
-                			String connURL = "jdbc:postgresql://ep-green-mode-a1uewakv-pooler.ap-southeast-1.aws.neon.tech:5432/neondb?sslmode=require";
-                			Connection conn = DriverManager.getConnection(connURL,"neondb_owner","npg_CF5WgzPNhdf6");
-                			Statement stmt = conn.createStatement();
-                			String sqlStr = "SELECT * FROM books";
-                			ResultSet rs = stmt.executeQuery(sqlStr);
-                			while (rs.next()) {
-                				 int id = rs.getInt("isbn");
-                				 String name = rs.getString("book_title");
-                				 out.println ("ID:" + id + ", Name:" +
-                				name +"<br>");
-                				 }
-
-                			conn.close();
-                		} catch (Exception e){
-                			out.println("Error: "+ e);
-                		}
-                        %> --%>
+						aria-expanded="false"> Services </a>
 						<div class="dropdown-menu mega-dropdown-menu">
 							<div class="mega-dropdown-content">
 								<div class="category-list">
@@ -202,11 +184,14 @@ to {
 										Statement stmt = conn.createStatement();
 										String sqlStr = "SELECT * FROM categories";
 										ResultSet rs = stmt.executeQuery(sqlStr);
+										ArrayList<categories> categoriesArray = new ArrayList<>();
 										while (rs.next()) {
 											String category = rs.getString("category_name");
 											String category_description = rs.getString("category_description");
-											out.println("<div class='category-item' data-category='"+category_description+"'>" + category + "</div>");
+											out.println("<div class='category-item' data-category='" + category_description + "'>" + category + "</div>");
+											categoriesArray.add(new categories(category, category_description));
 										}
+
 										conn.close();
 									} catch (Exception e) {
 										out.println("Error: " + e);
@@ -214,31 +199,71 @@ to {
 									%>
 								</div>
 								<div class="services-list">
-									<div class="service-group active" id="cleaning">
-										<a href="#" class="service-link">Home Cleaning</a> <a href="#"
-											class="service-link">Spring Cleaning</a> <a href="#"
-											class="service-link">Move In/Out Cleaning</a>
-									</div>
-									<div class="service-group" id="caregiving">
-										<h6 class="service-category-title">Domestic</h6>
-										<a href="#" class="service-link">Senior Day Care</a> <a
-											href="#" class="service-link">Live-in Caregivers</a> <a
-											href="#" class="service-link">Short-time Caregivers</a> <a
-											href="#" class="service-link">Meals On Wheels</a>
+									<%
+									try {
+										Class.forName("org.postgresql.Driver");
 
-										<h6 class="service-category-title mt-3">Medical</h6>
-										<a href="#" class="service-link">speech therapy</a> <a
-											href="#" class="service-link"> phsyio</a> <a href="#"
-											class="service-link">counselling</a> <a href="#"
-											class="service-link"> priv nurs’ </a>
-
-									</div>
-									<div class="service-group" id="smart-help">
-										<a href="#" class="service-link">Bill and Form Assistance</a>
-										<a href="#" class="service-link">Scam Awareness</a> <a
-											href="#" class="service-link">App & Device Help</a> <a
-											href="#" class="service-link">Repair Services</a>
-									</div>
+										// url = ""
+										String connURL = "jdbc:postgresql://ep-green-mode-a1uewakv-pooler.ap-southeast-1.aws.neon.tech:5432/neondb?sslmode=require";
+										Connection conn = DriverManager.getConnection(connURL, "neondb_owner", "npg_CF5WgzPNhdf6");
+										Statement stmt = conn.createStatement();
+										String sqlStr = "SELECT service.service_name, service.service_url, categories.category_description, category_tag.name FROM service INNER JOIN categories ON service.category_id = categories.id LEFT JOIN category_tag ON service.category_tag_id = category_tag.id";
+										ResultSet rs = stmt.executeQuery(sqlStr);
+										String previousCategory = "";
+										String previousCategoryTag = "";
+										Boolean notStarted = false;
+										while (rs.next()) {
+											
+											String category_name = rs.getString("category_description");
+											String service_name = rs.getString("service_name");
+											String category_tag = rs.getString("name");
+											String service_url = rs.getString("service_url");
+											if (notStarted == false){
+												notStarted = true;
+												previousCategory = category_name;
+												previousCategoryTag = category_tag;
+												out.println("<div class='service-group' id='" + category_name + "'>");
+												if (category_tag == null) {
+													out.println("<a href='" + service_url + "' class='service-link'>" + service_name + "</a>");
+												} else {
+													out.println("<h6 class='service-category-title'>"+category_tag+"</h6>");
+													out.println("<a href='" + service_url + "' class='service-link'>" + service_name + "</a>");
+												}
+											}
+											else if (category_name.equals(previousCategory) && Objects.equals(category_tag, previousCategoryTag)) {
+												previousCategory = category_name;
+												previousCategoryTag = category_tag;
+												out.println("<a href='" + service_url + "' class='service-link'>" + service_name + "</a>");
+											} else if (!category_name.equals(previousCategory) && (!Objects.equals(category_tag, previousCategoryTag)) && notStarted == true) {
+												previousCategory = category_name;
+												previousCategoryTag = category_tag;
+												out.println("</div>");
+												out.println("<div class='service-group' id='" + category_name + "'>");
+												if (category_tag == null) {
+													out.println("<a href='" + service_url + "' class='service-link'>" + service_name + "</a>");
+												} else {
+													out.println("<h6 class='service-category-title'>"+category_tag+"</h6>");
+													out.println("<a href='" + service_url + "' class='service-link'>" + service_name + "</a>");
+												}
+											} else if (!category_name.equals(previousCategory)) {
+												previousCategory = category_name;
+												previousCategoryTag = category_tag;
+												out.println("</div>");
+												out.println("<div class='service-group' id='" + category_name + "'>");
+												out.println("<a href='" + service_url + "' class='service-link'>" + service_name + "</a>");
+											} else if (!Objects.equals(category_tag, previousCategoryTag)) {
+												previousCategory = category_name;
+												previousCategoryTag = category_tag;
+												out.println("<h6 class='service-category-title'>"+category_tag+"</h6>");
+												out.println("<a href='" + service_url + "' class='service-link'>" + service_name + "</a>");
+											}
+										}
+										out.print("</div>");
+										conn.close();
+									} catch (Exception e) {
+										out.println("Error: " + e);
+									}
+									%>
 								</div>
 							</div>
 						</div></li>
