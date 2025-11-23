@@ -4,8 +4,9 @@
 <%@ page import="java.security.*"%>
 <%@ page import="java.nio.charset.StandardCharsets"%>
 <%@ page import="java.util.*"%>
-<%@ page import="teamplateForCategories.categories"%>
+<%@ page import="templateForCategories.categories"%>
 <%@ page import="java.util.Objects" %>
+<%@ page import="services.*" %>
 	
 <!DOCTYPE html>
 <html lang="en">
@@ -207,17 +208,21 @@ to {
 										String connURL = "jdbc:postgresql://ep-green-mode-a1uewakv-pooler.ap-southeast-1.aws.neon.tech:5432/neondb?sslmode=require";
 										Connection conn = DriverManager.getConnection(connURL, "neondb_owner", "npg_CF5WgzPNhdf6");
 										Statement stmt = conn.createStatement();
-										String sqlStr = "SELECT service.service_name, service.service_url, categories.category_description, category_tag.name FROM service INNER JOIN categories ON service.category_id = categories.id LEFT JOIN category_tag ON service.category_tag_id = category_tag.id";
+										String sqlStr = "SELECT service.id, service.service_name, service.service_url, categories.category_description, category_tag.name FROM service INNER JOIN categories ON service.category_id = categories.id LEFT JOIN category_tag ON service.category_tag_id = category_tag.id";
 										ResultSet rs = stmt.executeQuery(sqlStr);
 										String previousCategory = "";
 										String previousCategoryTag = "";
 										Boolean notStarted = false;
+										ArrayList<services> servicesArray = new ArrayList<>();
 										while (rs.next()) {
-											
 											String category_name = rs.getString("category_description");
 											String service_name = rs.getString("service_name");
 											String category_tag = rs.getString("name");
 											String service_url = rs.getString("service_url");
+											int service_id = rs.getInt("id");
+											services newService = new services(service_id, service_name, service_url, category_name, category_tag);
+											servicesArray.add(newService);
+											session.setAttribute("services", servicesArray);
 											if (notStarted == false){
 												notStarted = true;
 												previousCategory = category_name;
