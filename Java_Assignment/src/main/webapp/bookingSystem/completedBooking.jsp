@@ -30,7 +30,7 @@
         <h1>Appointment Scheduled Successfully!</h1>
         <p>Thanks for choosing us! If you have any questions or need further assistance, feel free to reach out to us. See you soon!</p>
         <div class="d-flex">
-            <button class="btn btn-primary" onclick="history.back()">Back</button>
+            <button class="btn btn-primary" onclick="window.location.href = 'http://localhost:8080/Java_Assignment/bookingSystem/booking.jsp'">Back</button>
         </div>
     </div>
 </body>

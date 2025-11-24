@@ -144,10 +144,6 @@ to {
 	color: #8fa9ba !important;
 }
 
-#homeScreenAnchorTag {
-	color: #000000 !important;
-}
-
 #homeScreenAnchorTag:hover {
 	color: #8fa9ba !important;
 }
