@@ -294,24 +294,24 @@ to {
 </head>
 
 <body>
-<%
-    String name = (String) session.getAttribute("name");
-    if (name == null) {
-        response.sendRedirect("http://localhost:8080/Java_Assignment/authentication/login.jsp"); 
-        return;
-    }
-    Integer memberID =  (Integer) session.getAttribute("member_id");
-    out.print(memberID);
-    if(memberID == null){
-    	out.print("couldnt get memberID");
-    }
-%>
+	<%
+	String name = (String) session.getAttribute("name");
+	if (name == null) {
+		response.sendRedirect("http://localhost:8080/Java_Assignment/authentication/login.jsp");
+		return;
+	}
+	Integer memberID = (Integer) session.getAttribute("member_id");
+	if (memberID == null) {
+		out.print("couldnt get memberID");
+	}
+	%>
 	<div class="mainDiv">
 		<h1 style="margin-top: -1%;">Book your services</h1>
 		<div
 			style="display: flex; gap: 3.5%; width: 100%; justify-content: space-evenly;">
 			<div class="divForInputs" style="width: 800px;">
-				<form method="post" action="${pageContext.request.contextPath}/ServiceBookings">
+				<form method="post"
+					action="${pageContext.request.contextPath}/ServiceBookings">
 					<label>
 						<h2>
 							Type of Service
@@ -366,7 +366,7 @@ to {
 							</span> <span class="radio-label">Caregiving</span>
 						</span>
 						</label> <label> <input class="radio-input" type="radio"
-							name="service" value="smartHelp"> <span
+							name="service" value="smart-help"> <span
 							class="radio-tile"> <span class="radio-icon"> <svg
 										width="61" height="60" viewBox="0 0 51 50" fill="none"
 										xmlns="http://www.w3.org/2000/svg"
@@ -394,7 +394,8 @@ to {
 					<div style="display: flex; flex-direction: column;">
 						<label for="services" style="margin-top: 3.5%;">
 							<h2>Choose your services</h2>
-						</label> <select name="services" id="services" class="form-select" onFocus="addSelectMenu()">
+						</label> <select name="services" id="services" class="form-select"
+							onFocus="addSelectMenu()">
 							<option selected hidden>Select...</option>
 							<option value="Home Cleaning">Home Cleaning</option>
 							<option value="Spring Cleaning">Spring Cleaning</option>
@@ -492,8 +493,41 @@ to {
 			}
 			let minDate = year + "-"+month+"-"+day
 			console.log(minDate)
-			dateInput.setAttribute("min",minDate)
-        });
+			dateInput.setAttribute("min",minDate);
+        	fetch("http://localhost:8080/Java_Assignment/checkForServicesServlet")
+        	.then (response => response.json())
+        	.then ((result)=>{
+        		if (result){
+                     let services = document.querySelectorAll('input[name="service"]');
+                     for (let i = 0; i < services.length; i++){
+                     	if (services[i].value == result.category_description){
+                     		services[i].setAttribute("checked","")
+                     	}
+                     }        		
+                     fetch("http://localhost:8080/Java_Assignment/getServices?serviceType="+result.category_description)
+                     .then(response => response.json())
+                     .then(results =>{
+                         let select = document.getElementById("services");
+
+                         let html = `
+                             <option hidden>Select...</option>
+                             `
+         				results.forEach((servicesSelect)=>{
+         					console.log(servicesSelect)
+         					console.log(result)
+         					if (servicesSelect.service_name === result.service_name){
+             					html+= "<option value='" + servicesSelect.service_id + "' selected>" + servicesSelect.service_name + "</option>";
+
+         					} else {
+             					html+= "<option value='" + servicesSelect.service_id + "'>" + servicesSelect.service_name + "</option>";
+         					}
+         					
+         				})
+         				select.innerHTML = html
+                     })
+        		}
+        	})
+        })
         function addCaregiverMenu(){
         	let select = document.getElementById("caregivers");
         	let htmlForSelect = "<option hidden>Select...</option>"

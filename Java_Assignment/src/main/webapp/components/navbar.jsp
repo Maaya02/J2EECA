@@ -208,7 +208,7 @@ to {
 										String connURL = "jdbc:postgresql://ep-green-mode-a1uewakv-pooler.ap-southeast-1.aws.neon.tech:5432/neondb?sslmode=require";
 										Connection conn = DriverManager.getConnection(connURL, "neondb_owner", "npg_CF5WgzPNhdf6");
 										Statement stmt = conn.createStatement();
-										String sqlStr = "SELECT service.id, service.service_name, service.service_url, categories.category_description, category_tag.name FROM service INNER JOIN categories ON service.category_id = categories.id LEFT JOIN category_tag ON service.category_tag_id = category_tag.id";
+										String sqlStr = "SELECT service.service_description ,service.id, service.service_name, categories.category_description, category_tag.name FROM service INNER JOIN categories ON service.category_id = categories.id LEFT JOIN category_tag ON service.category_tag_id = category_tag.id ORDER BY category_description ASC, name ASC;";
 										ResultSet rs = stmt.executeQuery(sqlStr);
 										String previousCategory = "";
 										String previousCategoryTag = "";
@@ -218,9 +218,9 @@ to {
 											String category_name = rs.getString("category_description");
 											String service_name = rs.getString("service_name");
 											String category_tag = rs.getString("name");
-											String service_url = rs.getString("service_url");
+											String service_description = rs.getString("service_description");
 											int service_id = rs.getInt("id");
-											services newService = new services(service_id, service_name, service_url, category_name, category_tag);
+											services newService = new services(service_description,service_id, service_name, category_name, category_tag);
 											servicesArray.add(newService);
 											session.setAttribute("services", servicesArray);
 											if (notStarted == false){
@@ -229,38 +229,38 @@ to {
 												previousCategoryTag = category_tag;
 												out.println("<div class='service-group' id='" + category_name + "'>");
 												if (category_tag == null) {
-													out.println("<a href='" + service_url + "' class='service-link'>" + service_name + "</a>");
+													out.println("<a href='http://localhost:8080/Java_Assignment/service/serviceDetail.jsp?id=" + service_id+ "' class='service-link'>" + service_name + "</a>");
 												} else {
 													out.println("<h6 class='service-category-title'>"+category_tag+"</h6>");
-													out.println("<a href='" + service_url + "' class='service-link'>" + service_name + "</a>");
+													out.println("<a href='http://localhost:8080/Java_Assignment/service/serviceDetail.jsp?id=" + service_id+ "' class='service-link'>" + service_name + "</a>");
 												}
 											}
 											else if (category_name.equals(previousCategory) && Objects.equals(category_tag, previousCategoryTag)) {
 												previousCategory = category_name;
 												previousCategoryTag = category_tag;
-												out.println("<a href='" + service_url + "' class='service-link'>" + service_name + "</a>");
+												out.println("<a href='http://localhost:8080/Java_Assignment/service/serviceDetail.jsp?id=" + service_id + "' class='service-link'>" + service_name + "</a>");
 											} else if (!category_name.equals(previousCategory) && (!Objects.equals(category_tag, previousCategoryTag)) && notStarted == true) {
 												previousCategory = category_name;
 												previousCategoryTag = category_tag;
 												out.println("</div>");
 												out.println("<div class='service-group' id='" + category_name + "'>");
 												if (category_tag == null) {
-													out.println("<a href='" + service_url + "' class='service-link'>" + service_name + "</a>");
+													out.println("<a href='http://localhost:8080/Java_Assignment/service/serviceDetail.jsp?id=" + service_id + "' class='service-link'>" + service_name + "</a>");
 												} else {
 													out.println("<h6 class='service-category-title'>"+category_tag+"</h6>");
-													out.println("<a href='" + service_url + "' class='service-link'>" + service_name + "</a>");
+													out.println("<a href='http://localhost:8080/Java_Assignment/service/serviceDetail.jsp?id=" + service_id + "' class='service-link'>" + service_name + "</a>");
 												}
 											} else if (!category_name.equals(previousCategory)) {
 												previousCategory = category_name;
 												previousCategoryTag = category_tag;
 												out.println("</div>");
 												out.println("<div class='service-group' id='" + category_name + "'>");
-												out.println("<a href='" + service_url + "' class='service-link'>" + service_name + "</a>");
+												out.println("<a href='http://localhost:8080/Java_Assignment/service/serviceDetail.jsp?id=" + service_id + "' class='service-link'>" + service_name + "</a>");
 											} else if (!Objects.equals(category_tag, previousCategoryTag)) {
 												previousCategory = category_name;
 												previousCategoryTag = category_tag;
 												out.println("<h6 class='service-category-title'>"+category_tag+"</h6>");
-												out.println("<a href='" + service_url + "' class='service-link'>" + service_name + "</a>");
+												out.println("<a href='http://localhost:8080/Java_Assignment/service/serviceDetail.jsp?id=" + service_id + "' class='service-link'>" + service_name + "</a>");
 											}
 										}
 										out.print("</div>");
@@ -275,7 +275,7 @@ to {
 					<li class="nav-item"><a class="nav-link" href="#aboutus">About
 							Us</a></li>
 				</ul>
-				<form class="d-flex ms-auto" action="bookingOfServices.jsp">
+				<form class="d-flex ms-auto" action="../bookingSystem/booking.jsp">
 					<button class="btn btn-info" type="submit">Book Services</button>
 				</form>
 			</div>
