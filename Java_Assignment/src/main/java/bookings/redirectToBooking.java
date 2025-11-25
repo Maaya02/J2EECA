@@ -33,7 +33,7 @@ public class redirectToBooking extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
 		HttpSession session = request.getSession();
-		int serviceId = Integer.parseInt(request.getParameter("serviceId"));
+		int serviceId = Integer.parseInt(request.getParameter("	"));
 		session.setAttribute("serviceToBook", serviceId);
 		response.sendRedirect("/Java_Assignment/bookingSystem/booking.jsp");
 	}

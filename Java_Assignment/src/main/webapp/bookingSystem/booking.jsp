@@ -313,9 +313,7 @@ to {
 				<form method="post"
 					action="${pageContext.request.contextPath}/ServiceBookings">
 					<label>
-						<h2>
-							Type of Service
-							</h1>
+						<h1>Type of Services</h1>
 					</label>
 					<div class="radio-inputs">
 						<label> <input class="radio-input" type="radio"

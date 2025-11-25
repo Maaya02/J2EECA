@@ -49,7 +49,6 @@ public class checkForServicesServlet extends HttpServlet {
 			}
 	    }
 	     response.getWriter().write(json);
-
 	}
 
 	/**

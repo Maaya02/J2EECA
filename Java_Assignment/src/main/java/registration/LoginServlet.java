@@ -45,6 +45,7 @@ public class LoginServlet extends HttpServlet {
 //		    	 dispatcher = request.getRequestDispatcher("authentication/homepage.jsp");
 		    	 session.setAttribute("name", rs.getString("username"));
 		    	 session.setAttribute("member_id", rs.getInt("id"));
+		    	 session.setAttribute("role", rs.getString("role"));
 //		    	 dispatcher = request.getRequestDispatcher("authentication/homepage.jsp");
 		    	 response.sendRedirect("authentication/homepage.jsp");
 		     }else {

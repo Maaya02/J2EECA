@@ -1,12 +1,10 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
+<!DOCTYPE html>
 <html lang="en" dir="ltr">
 
 <head>
     <meta charset="UTF-8" />
-    <!--<title> Drop Down Sidebar Menu | CodingLab </title>-->
-    <!-- <link rel="stylesheet" href="style.css" /> -->
-    <!-- Boxiocns CDN Link -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
     <link rel="stylesheet" href="https://unpkg.com/boxicons@latest/css/boxicons.min.css">
@@ -455,11 +453,6 @@
         .activePage {
             background: var(--colour-sp);
         }
-        .flexDiv{
-            display: flex;
-            align-items: center;
-            height: 100%;
-        }
     </style>
 </head>
 
@@ -467,7 +460,7 @@
     <div class="sidebar close">
         <ul class="nav-links">
             <li>
-                <a href="#">
+                <a href="#" >
                     <i class='bx  bx-arrow-left-stroke'><svg xmlns="http://www.w3.org/2000/svg" fill="white" width="24"
                             height="24"><!--Boxicons v3.0 https://boxicons.com | License  https://docs.boxicons.com/free-->
                             <path d="M11.79 6.29 6.09 12l5.7 5.71 1.42-1.42L9.91 13H18v-2H9.91l3.3-3.29z" />
@@ -479,16 +472,16 @@
                 </ul>
             </li>
             <li>
-                <a href="#" style="background-color: #557788;">
+                <a href="userManagement.jsp"  style="background-color: #557788;">
                     <i class='bx  bx-user'></i>
                     <span class="link_name">Manage Users</span>
                 </a>
                 <ul class="sub-menu blank">
-                    <li><a class="link_name" href="#">Manage Users</a></li>
+                    <li><a class="link_name" href="userManagement.jsp">Manage Users</a></li>
                 </ul>
             </li>
             <li>
-                <a href="#">
+                <a href="appointmentManagement.jsp">
                     <i class='bx'><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                             fill="white"><!--Boxicons v3.0 https://boxicons.com | License  https://docs.boxicons.com/free-->
                             <path
@@ -499,11 +492,11 @@
                     <span class="link_name">Manage Appointments</span>
                 </a>
                 <ul class="sub-menu blank">
-                    <li><a class="link_name" href="#">Manage Appointments</a></li>
+                    <li><a class="link_name" href="appointmentManagement.jsp">Manage Appointments</a></li>
                 </ul>
             </li>
             <li>
-                <a href="#">
+                <a href="servicesManagement.jsp">
                     <i class='bx  bx-clipboard-detail'><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                             fill="white"><!--Boxicons v3.0 https://boxicons.com | License  https://docs.boxicons.com/free-->
                             <path d="M7 10h10v2H7zm0 4h7v2H7z" />
@@ -513,7 +506,7 @@
                     <span class="link_name">Manage Services</span>
                 </a>
                 <ul class="sub-menu blank">
-                    <li><a class="link_name" href="#">Manage Services</a></li>
+                    <li><a class="link_name" href="servicesManagement.jsp">Manage Services</a></li>
                 </ul>
             </li>
         </ul>

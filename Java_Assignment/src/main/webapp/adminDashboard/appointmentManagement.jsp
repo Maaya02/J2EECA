@@ -1,12 +1,17 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+    <%@ page import="java.sql.*"%>
+<%@ page import="java.security.*"%>
+<%@ page import="java.nio.charset.StandardCharsets"%>
+<%@ page import="java.util.Base64"%>
+<%@ page import="java.sql.Timestamp" %>
+<%@ page import="java.util.*" %>
+<%@ page import="bookings.ServiceBooking" %>
 <!DOCTYPE html>
-<!-- Created by CodingLab |www.youtube.com/CodingLabYT-->
 <html lang="en" dir="ltr">
 
 <head>
     <meta charset="UTF-8" />
-    <!--<title> Drop Down Sidebar Menu | CodingLab </title>-->
-    <!-- <link rel="stylesheet" href="style.css" /> -->
-    <!-- Boxiocns CDN Link -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
     <link rel="stylesheet" href="https://unpkg.com/boxicons@latest/css/boxicons.min.css">
@@ -459,6 +464,21 @@
 </head>
 
 <body>
+ 	<%
+	String name = (String) session.getAttribute("name");
+	if (name == null) {
+		response.sendRedirect("http://localhost:8080/Java_Assignment/authentication/login.jsp");
+		return;
+	}
+	Integer memberID = (Integer) session.getAttribute("member_id");
+	if (memberID == null) {
+		out.print("couldnt get memberID");
+	}
+	String role = (String) session.getAttribute("role");
+	if (!role.equals("admin")){
+		response.sendRedirect("errorScreen.jsp");
+	}
+	%> 
     <div class="sidebar close">
         <ul class="nav-links">
             <li>
@@ -474,16 +494,16 @@
                 </ul>
             </li>
             <li>
-                <a href="#">
+                <a href="userManagement.jsp">
                     <i class='bx  bx-user'></i>
                     <span class="link_name">Manage Users</span>
                 </a>
                 <ul class="sub-menu blank">
-                    <li><a class="link_name" href="#">Manage Users</a></li>
+                    <li><a class="link_name" href="userManagement.jsp">Manage Users</a></li>
                 </ul>
             </li>
             <li>
-                <a href="#" style="background-color: #557788;">
+                <a href="appointmentManagement.jsp" style="background-color: #557788;">
                     <i class='bx'><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                             fill="white"><!--Boxicons v3.0 https://boxicons.com | License  https://docs.boxicons.com/free-->
                             <path
@@ -494,11 +514,11 @@
                     <span class="link_name">Manage Appointments</span>
                 </a>
                 <ul class="sub-menu blank">
-                    <li><a class="link_name" href="#">Manage Appointments</a></li>
+                    <li><a class="link_name" href="appointmentManagement.jsp">Manage Appointments</a></li>
                 </ul>
             </li>
             <li>
-                <a href="#">
+                <a href="servicesManagement.jsp">
                     <i class='bx  bx-clipboard-detail'><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                             fill="white"><!--Boxicons v3.0 https://boxicons.com | License  https://docs.boxicons.com/free-->
                             <path d="M7 10h10v2H7zm0 4h7v2H7z" />
@@ -508,7 +528,7 @@
                     <span class="link_name">Manage Services</span>
                 </a>
                 <ul class="sub-menu blank">
-                    <li><a class="link_name" href="#">Manage Services</a></li>
+                    <li><a class="link_name" href="servicesManagement.jsp">Manage Services</a></li>
                 </ul>
             </li>
         </ul>
@@ -535,29 +555,40 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <th scope="row">1</th>
-                            <td>29/10/25</td>
-                            <td>Otto</td>
-                            <td>Spring Cleaning</td>
-                            <td>Nil</td>
-                            <td>91234567</td>
-                            <td>Bonsata</td>
-                            <td><i class="bx bx-edit"></i></td>
-                            <td><i class="bx bx-trash"></i></td>
-                        </tr>
-                        <tr>
-                            <th scope="row">2</th>
-                            <td>Jacob</td>
-                            <td>Thornton</td>
-                            <td>@fat</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">3</th>
-                            <td>John</td>
-                            <td>Doe</td>
-                            <td>@social</td>
-                        </tr>
+                    <%
+            		try {
+            			Class.forName("org.postgresql.Driver");
+            			String connURL = "jdbc:postgresql://ep-green-mode-a1uewakv-pooler.ap-southeast-1.aws.neon.tech:5432/neondb?sslmode=require";
+            			Connection conn = DriverManager.getConnection(connURL,"neondb_owner","npg_CF5WgzPNhdf6");
+            			Statement stmt = conn.createStatement();
+            			String sqlStr = "SELECT member_booking.id, member_booking.service_date, member_booking.name, service.service_name, member_booking.message, member_booking.number, member.username FROM member_booking INNER JOIN service ON member_booking.service_id = service.id INNER JOIN member ON member_booking.caregiver_id = member.id WHERE status != 'CANCELLED';";
+            			ResultSet rs = stmt.executeQuery(sqlStr);
+            			while (rs.next()) {
+            				int id = rs.getInt("id");
+            				Timestamp date = rs.getTimestamp("service_date");
+            				String memberName = rs.getString("name");
+            				String serviceName = rs.getString("service_name");
+            				String message = rs.getString("message");
+            				int phoneNo = rs.getInt("number");
+            				String staffName = rs.getString("username");
+            				out.println("<tr>");
+            				out.println("<th scope='row'>" + id + "</th>");
+            				out.println("<td>" + date.toString().substring(0, 10)+"</td>");
+            				out.println("<td>" + memberName + "</td>");
+            				out.println("<td>" + serviceName + "</td>");
+            				out.println("<td>" + message + "</td>");
+            				out.println("<td>" + phoneNo + "</td>");
+            				out.println("<td>" + staffName + "</td>");
+            				out.println("<td><a href='editAppointmentDetails.jsp?id=" + id + "'><i class='bx bx-edit'></i></a></td>");
+            				out.println("<td><a href='deleteAppointment.jsp?id=" + id+"'><i class='bx bx-trash'></i></a></td>");
+            				out.println("</tr>");
+            			}
+            			conn.close();
+            		} catch (Exception e){
+            			out.println("Error: "+ e);
+            		}
+                    %>
+   
                     </tbody>
                 </table>
             </div>
@@ -566,7 +597,7 @@
     </section>
     <script src="https://unpkg.com/boxicons@2.1.3/dist/boxicons.js"></script>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+    <script src=	"https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
         crossorigin="anonymous"></script>
 

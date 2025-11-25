@@ -1,4 +1,7 @@
-<!DOCTYPE html>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+
+ <!DOCTYPE html>
 <!-- Created by CodingLab |www.youtube.com/CodingLabYT-->
 <html lang="en" dir="ltr">
 
@@ -453,10 +456,33 @@ margin-top: 4%;
 .activePage {
   background: var(--colour-sp);
 }
+.mainDiv {
+	width: 100%;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	display: flex;
+	height: 100vh;
+}
     </style>
 </head>
 
 <body>
+ 	<%
+	String name = (String) session.getAttribute("name");
+	if (name == null) {
+		response.sendRedirect("http://localhost:8080/Java_Assignment/authentication/login.jsp");
+		return;
+	}
+	Integer memberID = (Integer) session.getAttribute("member_id");
+	if (memberID == null) {
+		out.print("couldnt get memberID");
+	}
+	String role = (String) session.getAttribute("role");
+	if (!role.equals("admin")){
+		response.sendRedirect("errorScreen.jsp");
+	}
+	%> 
     <div class="sidebar close">
         <ul class="nav-links">
             <li>
@@ -472,16 +498,16 @@ margin-top: 4%;
                 </ul>
             </li>
             <li>
-                <a href="#">
+                <a href="userManagement.jsp">
                     <i class='bx  bx-user'></i>
                     <span class="link_name">Manage Users</span>
                 </a>
                 <ul class="sub-menu blank">
-                    <li><a class="link_name" href="#">Manage Users</a></li>
+                    <li><a class="link_name" href="userManagement.jsp">Manage Users</a></li>
                 </ul>
             </li>
             <li>
-                <a href="#">
+                <a href="appointmentManagement.jsp">
                     <i class='bx'><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                             fill="white"><!--Boxicons v3.0 https://boxicons.com | License  https://docs.boxicons.com/free-->
                             <path
@@ -492,11 +518,11 @@ margin-top: 4%;
                     <span class="link_name">Manage Appointments</span>
                 </a>
                 <ul class="sub-menu blank">
-                    <li><a class="link_name" href="#">Manage Appointments</a></li>
+                    <li><a class="link_name" href="appointmentManagement.jsp">Manage Appointments</a></li>
                 </ul>
             </li>
             <li>
-                <a href="#">
+                <a href="servicesManagement.jsp">
                     <i class='bx  bx-clipboard-detail'><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                             fill="white"><!--Boxicons v3.0 https://boxicons.com | License  https://docs.boxicons.com/free-->
                             <path d="M7 10h10v2H7zm0 4h7v2H7z" />
@@ -506,19 +532,25 @@ margin-top: 4%;
                     <span class="link_name">Manage Services</span>
                 </a>
                 <ul class="sub-menu blank">
-                    <li><a class="link_name" href="#">Manage Services</a></li>
+                    <li><a class="link_name" href="servicesManagement.jsp">Manage Services</a></li>
                 </ul>
             </li>
         </ul>
     </div>
-    <section class="home-section">
-        <div class="home-content" style="flex-direction: column; align-items: baseline; margin-top: 12px;">
-            <i class="bx bx-menu"></i>
-
-
-
-        </div>
-    </section>
+<section class="home-section">
+		<div class="home-content"
+			style="flex-direction: column; align-items: baseline; margin-top: 12px;">
+			<i class="bx bx-menu"></i>
+			<div class="mainDiv">
+				<h1>✅</h1>
+				<h1>Updated Successfully!</h1>
+				<p>Your changes have been saved</p>
+				<div class="d-flex">
+					<button class="btn btn-primary" onclick="history.back()">Back</button>
+				</div>
+			</div>
+		</div>
+	</section>
     <script src="https://unpkg.com/boxicons@2.1.3/dist/boxicons.js"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
