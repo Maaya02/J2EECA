@@ -457,15 +457,17 @@
 	color: #FFF;
 }
 
-#saveChanges {
-	border-radius: 0.875rem;
-	background: #ED6565;
-}
 
-#saveChanges:hover {
-	background: #ba4f4f;
-	color: #FFF;
-}
+        #saveChanges {
+            border-radius: 0.875rem;
+            background: #557788;
+        }
+
+        #saveChanges:hover {
+            background: #45616f;
+            color: #FFF;
+        }
+
 
 .activePage {
 	background: var(--colour-sp);

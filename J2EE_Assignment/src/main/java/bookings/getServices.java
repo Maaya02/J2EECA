@@ -39,10 +39,9 @@ public class getServices extends HttpServlet {
 		@SuppressWarnings("unchecked")
 		ArrayList<services> servicesArray = (ArrayList<services>) sessions.getAttribute("services");	
 		
+		
 		String serviceType = request.getParameter("serviceType");
-		if (serviceType.equals("smartHelp")) {
-			serviceType = "smart-help";
-		}
+
 		ArrayList<services> arrayToSendOut = new ArrayList<>();
 		for (services service: servicesArray) {
 			if (service.getCategoryDescription().equals(serviceType)) {
