@@ -60,29 +60,37 @@ public class editServices extends HttpServlet {
 	        // --- 1. Handle file upload ---
 	        Part imagePart = request.getPart("image");
 	        String fileName = Paths.get(imagePart.getSubmittedFileName()).getFileName().toString();
-	        String uploadPath = "/Users/leeshanna/git/J2EECA/Java_Assignment/src/main/webapp/adminDashboard/images";	        
-	        File uploadDir = new File(uploadPath);
-	        if (!uploadDir.exists()) uploadDir.mkdir();
-	        System.out.println(uploadPath);
-	        File savedFile = new File(uploadDir, fileName);
-	        // Optionally delete previous image with the same name
-	        if (savedFile.exists()) {
-	            savedFile.delete();  // deletes only this file
-	        }
+	        String imageUrl;
+	        if (fileName.equals("")) {
+	        	imageUrl = "images/image_2.png";
+	        } else {
+		        String uploadPath = "/Users/leeshanna/git/J2EECA/Java_Assignment/src/main/webapp/adminDashboard/images";	        
+		        File uploadDir = new File(uploadPath);
+		        if (!uploadDir.exists()) uploadDir.mkdir();
+		        System.out.println(uploadPath);
+		        File savedFile = new File(uploadDir, fileName);
+		        // Optionally delete previous image with the same name
+		        if (savedFile.exists()) {
+		            savedFile.delete();  // deletes only this file
+		        }
 
-	        try (InputStream is = imagePart.getInputStream()) {
-	            Files.copy(is, savedFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-	        }
+		        try (InputStream is = imagePart.getInputStream()) {
+		            Files.copy(is, savedFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+		        }
 
-	        String imageUrl = "images/"+fileName;
-
-	        
+		        imageUrl = "images/"+fileName;
+	        }	        
 			String nameOfService = request.getParameter("name");
 			String description = request.getParameter("description");
 			int price = Integer.parseInt(request.getParameter("price"));
 			String location = request.getParameter("location");
 			String categoryTag = request.getParameter("categoryTag");
 			String category = request.getParameter("serviceCategory");
+			if (categoryTag.equals("Select...")) {
+				categoryTag = null;
+			}
+			System.out.println("Category Tag: " + categoryTag);
+			System.out.println("Category: " + category);
 			int service = Integer.parseInt(request.getParameter("serviceId"));
 			int categoryId;
 			int categoryTagId;
@@ -90,39 +98,141 @@ public class editServices extends HttpServlet {
 			Class.forName("org.postgresql.Driver");
 			String connURL = "jdbc:postgresql://ep-green-mode-a1uewakv-pooler.ap-southeast-1.aws.neon.tech:5432/neondb?sslmode=require";
 			Connection conn = DriverManager.getConnection(connURL, "neondb_owner", "npg_CF5WgzPNhdf6");
-			String sqlStr = "CALL update_services(?,?,?,?,?,?,?,?,?,?)";
-			PreparedStatement ps = conn.prepareStatement(sqlStr);
-			ps.setString(1, nameOfService);
-			ps.setString(2, description);
-			ps.setInt(3, price);
-			ps.setString(4, location);
-			ps.setString(5, imageUrl);
+			Boolean done = false;
+			if (categoryTag == null) {
+				categoryId = Integer.parseInt(category);
+				String sqlStr = "UPDATE service SET service_name = ?, service_description = ?, price = ?, location = ?, image_url = ?, category_id = ? WHERE service.id = ?;";
+				PreparedStatement ps = conn.prepareStatement(sqlStr);
+				ps.setString(1, nameOfService);
+				ps.setString(2, description);
+				ps.setInt(3, price);
+				ps.setString(4, location);
+				ps.setString(5, imageUrl);
+				ps.setInt(6, categoryId);
+				ps.setInt(7, service);
+				int rows = ps.executeUpdate();
+				System.out.println(rows);
+				if (rows == 1 || rows == -1) {
+					response.sendRedirect("adminDashboard/completedUpdate.jsp");
+					done = true;
+				} else {
+					response.sendRedirect("adminDashboard/errorScreen.html");
+				}
+			}
 			try {
-				categoryTagId = Integer.parseInt(categoryTag);
-				ps.setInt(7, categoryTagId);
-				ps.setNull(9, Types.VARCHAR);
+				if (!done) {
+					categoryTagId = Integer.parseInt(categoryTag);
+					categoryId = Integer.parseInt(category);
+
+					String sqlStr = "CALL update_services(?,?,?,?,?,?,?,?)";
+					PreparedStatement ps = conn.prepareStatement(sqlStr);
+					ps.setString(1, nameOfService);
+					ps.setString(2, description);
+					ps.setInt(3, price);
+					ps.setString(4, location);
+					ps.setString(5, imageUrl);
+					ps.setInt(6, categoryId);
+					ps.setInt(7,categoryTagId);
+					ps.setInt(8, service);
+					int rows = ps.executeUpdate();
+					System.out.println(rows);
+
+					if (rows == 1 || rows == -1) {
+						response.sendRedirect("adminDashboard/completedUpdate.jsp");
+						done = true;
+
+					} else {
+						response.sendRedirect("adminDashboard/errorScreen.html");
+					}
+				}
 
 			} catch (NumberFormatException e) {
-				ps.setString(9, categoryTag);
-				ps.setNull(7, java.sql.Types.INTEGER);	
+				try {
+					categoryId = Integer.parseInt(category);
+
+				} catch (NumberFormatException eForCategory) {
+					if (!done) {
+						categoryTagId = Integer.parseInt(categoryTag);
+						String sqlStr = "CALL update_services_for_no_category(?,?,?,?,?,?,?,?)";
+						PreparedStatement ps = conn.prepareStatement(sqlStr);
+						ps.setString(1, nameOfService);
+						ps.setString(2, description);
+						ps.setInt(3, price);
+						ps.setString(4, location);
+						ps.setString(5, imageUrl);
+						ps.setString(6, category);
+						ps.setInt(7,categoryTagId);
+						ps.setInt(8, service);
+						int rows = ps.executeUpdate();
+						System.out.println(rows);
+
+						if (rows == 1 || rows == -1) {
+							response.sendRedirect("adminDashboard/completedUpdate.jsp");
+							done = true;
+
+						} else {
+							response.sendRedirect("adminDashboard/errorScreen.html");
+						}
+					}
+
+				}
+				try {
+					categoryTagId = Integer.parseInt(categoryTag);
+
+				} catch (NumberFormatException eForCategoryTag) {
+					if (!done) {
+						categoryId = Integer.parseInt(category);
+						String sqlStr = "CALL update_services_for_no_tags(?,?,?,?,?,?,?,?)";
+						PreparedStatement ps = conn.prepareStatement(sqlStr);
+						ps.setString(1, nameOfService);
+						ps.setString(2, description);
+						ps.setInt(3, price);
+						ps.setString(4, location);
+						ps.setString(5, imageUrl);
+						ps.setInt(6, categoryId);
+						ps.setString(7, categoryTag);
+						ps.setInt(8, service);
+						int rows = ps.executeUpdate();
+						System.out.println(rows);
+
+						if (rows == 1 || rows == -1) {
+							response.sendRedirect("adminDashboard/completedUpdate.jsp");
+							done = true;
+
+						} else {
+							response.sendRedirect("adminDashboard/errorScreen.html");
+						}
+					}
+	
+				}
+				if (!done) {
+					String sqlStr = "CALL update_services_for_no_category_and_no_tags(?,?,?,?,?,?,?,?)";
+					PreparedStatement ps = conn.prepareStatement(sqlStr);
+					ps.setString(1, nameOfService);
+					ps.setString(2, description);
+					ps.setInt(3, price);
+					ps.setString(4, location);
+					ps.setString(5, imageUrl);
+					ps.setString(6, category);
+					ps.setString(7,categoryTag);
+					ps.setInt(8, service);
+					int rows = ps.executeUpdate();
+					System.out.println(rows);
+
+					if (rows == 1 || rows == -1) {
+						response.sendRedirect("adminDashboard/completedUpdate.jsp");
+						done = true;
+
+					} else {
+						response.sendRedirect("adminDashboard/errorScreen.html");
+					}
+				}
+
 			}
-			try {
-				categoryId = Integer.parseInt(category);
-				ps.setInt(6, categoryId);
-				ps.setNull(9, Types.VARCHAR);
-			} catch (NumberFormatException e) {
-				ps.setString(8, category);
-				ps.setNull(6, java.sql.Types.INTEGER);
-			}
+
 			
-			ps.setInt(10, service);
 			
-			int rows = ps.executeUpdate();
-			if (rows == 1) {
-				response.sendRedirect("adminDashboard/completedUpdate.jsp");
-			} else {
-				response.sendRedirect("adminDashboard/errorScreen.html");
-			}
+
 			conn.close();
 		} catch (Exception e) {
 			e.printStackTrace();

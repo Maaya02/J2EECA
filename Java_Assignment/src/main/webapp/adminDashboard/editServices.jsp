@@ -792,7 +792,21 @@ to {
 </style>
 <body>
 
-
+ 	<%
+	String name = (String) session.getAttribute("name");
+	if (name == null) {
+		response.sendRedirect("http://localhost:8080/Java_Assignment/authentication/login.jsp");
+		return;
+	}
+	Integer memberID = (Integer) session.getAttribute("member_id");
+	if (memberID == null) {
+		out.print("couldnt get memberID");
+	}
+	String role = (String) session.getAttribute("role");
+	if (!role.equals("admin")){
+		response.sendRedirect("errorScreen.jsp");
+	}
+	%> 
 	<div class="sidebar close">
 		<ul class="nav-links">
 			<li><a href="#"> <i class='bx  bx-arrow-left-stroke'><svg
@@ -930,7 +944,7 @@ to {
 
 									<div class="select-wrapper">
 										<select class="form-select category-select"
-											id="serviceCategory">
+											id="serviceCategory" name="serviceCategory">
 											<option selected hidden>Select...</option>
 											
 											<%
@@ -987,7 +1001,7 @@ to {
 									</label>
 
 									<div class="select-wrapper">
-										<select class="form-select category-select" id="categoryTag">
+										<select class="form-select category-select" id="categoryTag" name="categoryTag">
 									<option selected hidden>Select...</option>
 											<%
 											try {

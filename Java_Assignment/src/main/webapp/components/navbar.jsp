@@ -6,7 +6,7 @@
 <%@ page import="java.util.*"%>
 <%@ page import="java.util.Objects" %>
 <%@ page import="services.*" %>
-<%@ page import="templateForCategories.*" %>
+<%@ page import="templateForCategories.categories" %>
 	
 <!DOCTYPE html>
 <html lang="en">
