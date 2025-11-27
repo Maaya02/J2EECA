@@ -1,25 +1,24 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
-    <%@ page import="java.security.*"%>
+        <%@ page import="java.sql.*"%>
+<%@ page import="java.security.*"%>
 <%@ page import="java.nio.charset.StandardCharsets"%>
 <%@ page import="java.util.Base64"%>
-<%@ page import="java.sql.*" %>
+<%@ page import="java.sql.Timestamp" %>
 <%@ page import="java.util.*" %>
+<%@ page import="bookings.ServiceBooking" %>
 <!DOCTYPE html>
-<!-- Created by CodingLab |www.youtube.com/CodingLabYT-->
 <html lang="en" dir="ltr">
 
 <head>
     <meta charset="UTF-8" />
-    <!--<title> Drop Down Sidebar Menu | CodingLab </title>-->
-    <!-- <link rel="stylesheet" href="style.css" /> -->
-    <!-- Boxiocns CDN Link -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
     <link rel="stylesheet" href="https://unpkg.com/boxicons@latest/css/boxicons.min.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
+        
     <style>
         :root {
             --colour-sp: #F6323E;
@@ -469,7 +468,7 @@
     <div class="sidebar close">
         <ul class="nav-links">
             <li>
-                <a href="#">
+                <a href="#" >
                     <i class='bx  bx-arrow-left-stroke'><svg xmlns="http://www.w3.org/2000/svg" fill="white" width="24"
                             height="24"><!--Boxicons v3.0 https://boxicons.com | License  https://docs.boxicons.com/free-->
                             <path d="M11.79 6.29 6.09 12l5.7 5.71 1.42-1.42L9.91 13H18v-2H9.91l3.3-3.29z" />
@@ -481,7 +480,7 @@
                 </ul>
             </li>
             <li>
-                <a href="userManagement.jsp">
+                <a href="userManagement.jsp"  style="background-color: #557788;">
                     <i class='bx  bx-user'></i>
                     <span class="link_name">Manage Users</span>
                 </a>
@@ -490,7 +489,7 @@
                 </ul>
             </li>
             <li>
-                <a href="appointmentManagement.jsp" >
+                <a href="appointmentManagement.jsp">
                     <i class='bx'><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                             fill="white"><!--Boxicons v3.0 https://boxicons.com | License  https://docs.boxicons.com/free-->
                             <path
@@ -505,7 +504,7 @@
                 </ul>
             </li>
             <li>
-                <a href="servicesManagement.jsp" style="background-color: #557788;">
+                <a href="servicesManagement.jsp">
                     <i class='bx  bx-clipboard-detail'><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                             fill="white"><!--Boxicons v3.0 https://boxicons.com | License  https://docs.boxicons.com/free-->
                             <path d="M7 10h10v2H7zm0 4h7v2H7z" />
@@ -525,54 +524,41 @@
             <i class="bx bx-menu"></i>
 
             <div style=" width: 95%;" class="p-3 m-5" id="divForTheMainScreen">
-                <h1>Services</h1>
+                <h1>Users</h1>
                 <hr>
                 <table class="table">
                     <thead>
                         <tr>
                             <th scope="col">ID</th>
-                            <th scope="col">Name</th>
-                            <th scope="col">Description</th>
-                            <th scope="col">Price</th>
-                            <th scope="col">Location</th>
-                            <th scope="col">Category</th>
-                            <th scope="col">Category Tag</th>
-                            <th scope="col"><i></i></th>
+                            <th scope="col">Username</th>
+                            <th scope="col">Email</th>
+                            <th scope="col">role</th>
+                            <th scope="col">Phone no</th>
                             <th scope="col"><i></i></th>
                         </tr>
                     </thead>
                     <tbody>
-                                        <%
+                    <%
             		try {
             			Class.forName("org.postgresql.Driver");
             			String connURL = "jdbc:postgresql://ep-green-mode-a1uewakv-pooler.ap-southeast-1.aws.neon.tech:5432/neondb?sslmode=require";
             			Connection conn = DriverManager.getConnection(connURL,"neondb_owner","npg_CF5WgzPNhdf6");
             			Statement stmt = conn.createStatement();
-            			String sqlStr = "SELECT service.id, service.service_name, service.service_description, service.location, service.price, categories.category_name, category_tag.name FROM service INNER JOIN categories ON categories.id = service.category_id LEFT JOIN category_tag ON category_tag.id = service.category_tag_id ORDER BY service.id;";
+            			String sqlStr = "SELECT id, username,role,number,email FROM member ORDER BY id;";
             			ResultSet rs = stmt.executeQuery(sqlStr);
             			while (rs.next()) {
             				int id = rs.getInt("id");
-  
-            				String name = rs.getString("service_name");
-
-            				String description = rs.getString("service_description");
-            				String location = rs.getString("location");
-            				int price = rs.getInt("price");
-            				String category = rs.getString("category_name");
-            				String categoryTag = rs.getString("name");
-            				if (categoryTag == null){
-            					categoryTag = "Nil";
-            				}
+            				String username = rs.getString("username");
+            				String email = rs.getString("email");
+            				String role = rs.getString("role");
+            				int phoneNo = rs.getInt("number");
             				out.println("<tr>");
             				out.println("<th scope='row'>" + id + "</th>");
-            				out.println("<td>" + name +"</td>");
-            				out.println("<td>" + description  + "</td>");
-            				out.println("<td>" + price + "</td>");
-            				out.println("<td>" + location + "</td>");
-            				out.println("<td>" + category + "</td>");
-            				out.println("<td>" + categoryTag + "</td>");
-            				out.println("<td><a href='editServices.jsp?id=" + id + "'><i class='bx bx-edit'></i></a></td>");
-            				out.println("<td><a href='deleteServicesServlet.jsp?id="+ id + "'><i class='bx bx-trash'></i></a></td>");
+            				out.println("<td>" + username +"</td>");
+            				out.println("<td>" + email  + "</td>");
+            				out.println("<td>" + role + "</td>");
+            				out.println("<td>" + phoneNo + "</td>");
+            				out.println("<td><a href='editUserDetails.jsp?id=" + id + "'><i class='bx bx-edit'></i></a></td>");
             				out.println("</tr>");
             			}
             			conn.close();

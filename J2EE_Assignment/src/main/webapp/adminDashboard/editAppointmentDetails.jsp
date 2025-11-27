@@ -7,7 +7,6 @@
 <%@ page import="java.sql.Timestamp"%>
 <%@ page import="java.util.*"%>
 <%@ page import="bookings.ServiceBooking"%>
-<%@ page import="admin.user"%>
 
 <!DOCTYPE html>
 <!-- Created by CodingLab |www.youtube.com/CodingLabYT-->
@@ -391,7 +390,6 @@
 .form-control:focus {
 	border: 2px solid grey;
 }
-
 /* 
 .divForInputs {
   flex: 1;
@@ -459,15 +457,17 @@
 	color: #FFF;
 }
 
-#saveChanges {
-	border-radius: 0.875rem;
-	background: #557788;
-}
 
-#saveChanges:hover {
-	background: #45616f;
-	color: #FFF;
-}
+        #saveChanges {
+            border-radius: 0.875rem;
+            background: #557788;
+        }
+
+        #saveChanges:hover {
+            background: #45616f;
+            color: #FFF;
+        }
+
 
 .activePage {
 	background: var(--colour-sp);
@@ -746,7 +746,7 @@ to {
 }
 </style>
 <body>
-	<%!user user;%>
+	<%!ServiceBooking booking;%>
 	<%
 	try {
 		Class.forName("org.postgresql.Driver");
@@ -756,30 +756,34 @@ to {
 		String connURL = "jdbc:postgresql://ep-green-mode-a1uewakv-pooler.ap-southeast-1.aws.neon.tech:5432/neondb?sslmode=require";
 		Connection conn = DriverManager.getConnection(connURL, "neondb_owner", "npg_CF5WgzPNhdf6");
 		Statement stmt = conn.createStatement();
-		String sqlStr = "SELECT id, username, email, role, number FROM member WHERE id = ?;";
+		String sqlStr = "SELECT member_booking.status, member_booking.id, member_booking.service_date, service.service_name, member.username FROM member_booking INNER JOIN service ON member_booking.service_id = service.id INNER JOIN member ON member_booking.caregiver_id = member.id WHERE member_booking.id = ?;";
 		PreparedStatement psmt = conn.prepareStatement(sqlStr);
 		psmt.setInt(1, appointmentId);
 		ResultSet rs = psmt.executeQuery();
 		while (rs.next()) {
 			int id = rs.getInt("id");
-			String username = rs.getString("username");
-			String email = rs.getString("email");
-			String role = rs.getString("role");
-			int phoneNo = rs.getInt("number");
-			user = new user(id, username, email, role, phoneNo);
+			String status = rs.getString("status");
+			if (status.equals("CANCELLED")){
+				response.sendRedirect("errorScreen.jsp");
+			} else {
+				String serviceName = rs.getString("service_name");
+				String staffName = rs.getString("username");
+				Timestamp timeAndDateOfAppointment = rs.getTimestamp("service_date");
+				booking = new ServiceBooking(id, timeAndDateOfAppointment, serviceName, staffName);
+			}
+
 		}
 		conn.close();
 	} catch (Exception e) {
 		e.printStackTrace();
 	}
 	%>
-
 	<div class="sidebar close">
 		<ul class="nav-links">
 			<li><a href="#"> <i class='bx  bx-arrow-left-stroke'><svg
 							xmlns="http://www.w3.org/2000/svg" fill="white" width="24"
 							height="24">
-                            <!--Boxicons v3.0 https://boxicons.com | License  https://docs.boxicons.com/free-->
+							<!--Boxicons v3.0 https://boxicons.com | License  https://docs.boxicons.com/free-->
                             <path
 								d="M11.79 6.29 6.09 12l5.7 5.71 1.42-1.42L9.91 13H18v-2H9.91l3.3-3.29z" />
                         </svg></i> <span class="link_name">Back</span>
@@ -797,7 +801,7 @@ to {
 			<li><a href="appointmentManagement.jsp"> <i class='bx'><svg
 							xmlns="http://www.w3.org/2000/svg" width="24" height="24"
 							fill="white">
-                            <!--Boxicons v3.0 https://boxicons.com | License  https://docs.boxicons.com/free-->
+							<!--Boxicons v3.0 https://boxicons.com | License  https://docs.boxicons.com/free-->
                             <path
 								d="M19 4h-2V2h-2v2H9V2H7v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2M5 20V8h14V6v14z" />
                             <path
@@ -813,7 +817,7 @@ to {
 					class='bx  bx-clipboard-detail'><svg
 							xmlns="http://www.w3.org/2000/svg" width="24" height="24"
 							fill="white">
-                            <!--Boxicons v3.0 https://boxicons.com | License  https://docs.boxicons.com/free-->
+							<!--Boxicons v3.0 https://boxicons.com | License  https://docs.boxicons.com/free-->
                             <path d="M7 10h10v2H7zm0 4h7v2H7z" />
                             <path
 								d="M19 3h-2c0-.55-.45-1-1-1H8c-.55 0-1 .45-1 1H5c-1.1 0-2 .9-2 2v15c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2m0 17H5V5h2v2h10V5h2z" />
@@ -831,99 +835,110 @@ to {
 			<i class="bx bx-menu"></i>
 
 			<div class="mainDiv">
-				<h1 style="margin-top: -1%;">Edit user details</h1>
+				<h1 style="margin-top: -1%;">Edit booking details</h1>
 				<div
 					style="display: flex; gap: 3.5%; width: 100%; justify-content: space-evenly;">
 					<div class="divForInputs" style="width: 900px;">
 						<form method="post"
-							action="${pageContext.request.contextPath}/editUser">
+							action="${pageContext.request.contextPath}/editServices">
 							<div style="display: flex; flex-direction: column;">
-								<label for="username" style="margin-top: 3.5%;">
-									<h2>Username</h2>
-								</label> <input type="text" class="form-control" name="username"
-									id="username" placeholder="Enter username"
-									value="<%=user.getUsername()%>">
-							</div>
-							<div
-								style="display: flex; flex-direction: column; margin-top: 3.5%;">
-								<label for="email">
-									<h2>Email</h2>
-								</label> <input type='email' name='email' id='email'
-									class='form-control' placeholder="Enter email"
-									value="<%=user.getEmail()%>" />
-							</div>
-							<div
-								style="display: flex; flex-direction: column; margin-top: 3.5%;">
-								<label for="role">
-									<h2>Role</h2>
-								</label> <select name="role" id="role" class="form-select">
+								<label for="services" style="margin-top: 3.5%;">
+									<h2>Service</h2>
+								</label> <select name="services" id="services" class="form-select">
 									<option selected hidden>Select...</option>
 									<%
-									if (user.getRole().equals("admin")) {
-										out.println("<option value='admin' selected>Admin</option>");
-										out.println("<option value='staff'>Staff</option>");
-										out.println("<option value='members'>Member</option>");
-									} else if (user.getRole().equals("staff")) {
-										out.println("<option value='admin'>Admin</option>");
-										out.println("<option value='staff' selected>Staff</option>");
-										out.println("<option value='members'>Member</option>");
-									} else if (user.getRole().equals("members")) {
-										out.println("<option value='admin'>Admin</option>");
-										out.println("<option value='staff'>Staff</option>");
-										out.println("<option value='members' selected>Member</option>");
+									try {
+										Class.forName("org.postgresql.Driver");
+
+										// url = ""
+										String connURL = "jdbc:postgresql://ep-green-mode-a1uewakv-pooler.ap-southeast-1.aws.neon.tech:5432/neondb?sslmode=require";
+										Connection conn = DriverManager.getConnection(connURL, "neondb_owner", "npg_CF5WgzPNhdf6");
+										Statement stmt = conn.createStatement();
+										String sqlStr = "SELECT id,service_name FROM service";
+										ResultSet rs = stmt.executeQuery(sqlStr);
+
+										while (rs.next()) {
+											int id = rs.getInt("id");
+											String service_name = rs.getString("service_name");
+											if (service_name.equals(booking.getServiceName())) {
+										out.println("<option value='" + id + "' selected>" + service_name + "</option>");
+
+											} else {
+										out.println("<option value='" + id + "'>" + service_name + "</option>");
+											}
+										}
+										conn.close();
+									} catch (Exception e) {
+										out.println("Error: " + e);
 									}
 									%>
 								</select>
 							</div>
 							<div
 								style="display: flex; flex-direction: column; margin-top: 3.5%;">
-								<label for="phoneNumber">
-									<h2>Phone Number</h2>
-								</label> <input type="tel" name="phoneNumber" id="phoneNumber"
-									class="form-control" placeholder="Enter Phone Number"
-									value="<%=user.getNumber()%>" />
+								<label for="date">
+									<h2>Date</h2>
+								</label>
+								<%
+								String dateFormat = booking.getDate().toString().substring(0, 10);
+								out.println("<input type='date' name='date' id='date' class='form-control' value='" + dateFormat + "' min='"
+										+ dateFormat + "'");
+								%>
 							</div>
 							<div
-								style="margin-top: 5%; display: flex; justify-content: flex-end; gap: 3%;">
-
-								<button type="submit" class="btn btn-primary px-5 py-2"
-									id="saveChanges" disabled>Save Changes</button>
+								style="display: flex; flex-direction: column; margin-top: 3.5%;">
+								<label for="time">
+									<h2>Time</h2>
+								</label> <input type="time" name="time" id="time" class="form-control"
+									value="<%=booking.getDate().toString().substring(11, 16)%>">
 							</div>
-							<input type="hidden" value="<%=user.getId()%>" id="userId"
-								name="userId" />
 
+							<div
+								style="display: flex; flex-direction: column; margin-top: 3.5%;">
+								<label for="caregivers">
+									<h2>Staff</h2>
+								</label> <select name="caregivers" id="caregivers" class="form-select">
+									<option selected hidden>Select...</option>
+									<%
+									try {
+										Class.forName("org.postgresql.Driver"); // load driver
+										String dbUrl = "jdbc:postgresql://ep-green-mode-a1uewakv-pooler.ap-southeast-1.aws.neon.tech:5432/neondb?sslmode=require";
+										String username = "neondb_owner";
+										String password = "npg_CF5WgzPNhdf6";
+										Connection conn = DriverManager.getConnection(dbUrl, username, password);
+
+										PreparedStatement pstmt = conn.prepareStatement("SELECT id,username FROM member WHERE role='staff'");
+
+										//								    	 dispatcher = request.getRequestDispatcher("authentication/homepage.jsp");
+
+										ResultSet rs = pstmt.executeQuery();
+										while (rs.next()) {
+											int memberId = rs.getInt("id");
+											String memberName = rs.getString("username");
+											if (memberName.equals(booking.getStaff())) {
+										out.println("<option value='" + memberId + "' selected>" + memberName + "</option>");
+
+											} else {
+										out.println("<option value='" + memberId + "'>" + memberName + "</option>");
+											}
+										}
+
+									} catch (Exception e) {
+										e.printStackTrace();
+
+									}
+									%>
+								</select>
+							</div>
+
+							<div
+								style="margin-top: 5%; display: flex; justify-content: flex-end;">
+								<button type="submit" class="btn btn-primary px-5 py-2" id="saveChanges" disabled>Save
+									Changes</button>
+							</div>
+							<input type="hidden" value="<%= booking.getId() %>" id="bookingId" name="bookingId"/>
+							
 						</form>
-						<hr style="margin-top: 7%;">
-
-						<!-- Button trigger modal -->
-						<button type="button" class="btn btn-danger"
-							style="width: 100%; margin-top: 2%; border-radius: 0.875rem;"
-							data-bs-toggle="modal" data-bs-target="#exampleModal">
-							Delete User</button>
-						<!-- Modal -->
-						<div class="modal fade" id="exampleModal" tabindex="-1"
-							aria-labelledby="exampleModalLabel" aria-hidden="true">
-							<div class="modal-dialog">
-								<div class="modal-content">
-									<div class="modal-header">
-										<h1 class="modal-title fs-5" id="exampleModalLabel">Are
-											you sure that you want to delete this user?</h1>
-										<button type="button" class="btn-close"
-											data-bs-dismiss="modal" aria-label="Close"></button>
-									</div>
-									<div class="modal-footer">
-										<button type="button" class="btn btn-secondary"
-											data-bs-dismiss="modal">No</button>
-										<form action="${pageContext.request.contextPath}/DeleteUserServlet" method="post">
-											<input type="hidden" value="<%=user.getId()%>" id="userIdForDelete"
-												name="userIdForDelete" />
-											<button type="submit" class="btn btn-primary">Yes</button>
-
-										</form>
-									</div>
-								</div>
-							</div>
-						</div>
 					</div>
 				</div>
 
@@ -954,7 +969,7 @@ to {
         sidebarBtn.addEventListener("click", () => {
             sidebar.classList.toggle("close");
         });
-        document.addEventListener("DOMContentLoaded", (event) => {
+        document.addEventListener("DOMContentLoaded",(event)=>{
             let input = document.querySelectorAll("input, select");
             let saveChanges = document.getElementById("saveChanges");
             let oldValues = [];

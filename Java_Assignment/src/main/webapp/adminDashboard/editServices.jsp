@@ -8,7 +8,6 @@
 <%@ page import="java.util.*"%>
 <%@ page import="bookings.ServiceBooking"%>
 <%@ page import="admin.user"%>
-
 <!DOCTYPE html>
 <!-- Created by CodingLab |www.youtube.com/CodingLabYT-->
 <html lang="en" dir="ltr">
@@ -28,6 +27,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <link rel="stylesheet"
 	href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
+
 <style>
 :root {
 	--colour-sp: #F6323E;
@@ -744,35 +744,54 @@ to {
 .widthOfInput {
 	width: 300px !important;
 }
+
+.category-container {
+	margin: 0 auto;
+	width: 100%;
+}
+
+/* .select-wrapper {
+            position: relative;
+        } */
+.form-select {
+	padding-right: 2.5rem;
+}
+
+.checkmark-icon {
+	position: absolute;
+	right: 40px;
+	top: 50%;
+	transform: translateY(-50%);
+	pointer-events: none;
+}
+
+.add-category-option {
+	color: #0d6efd;
+	font-weight: 500;
+}
+
+.input-group-text {
+	background-color: white;
+	border-left: 0;
+	cursor: pointer;
+}
+
+.input-group-text:hover {
+	background-color: #f8f9fa;
+}
+
+.form-control:focus {
+	border-color: #ced4da;
+	box-shadow: none;
+}
+
+.input-group:focus-within .form-control, .input-group:focus-within .input-group-text
+	{
+	border-color: #86b7fe;
+}
 </style>
 <body>
-	<%!user user;%>
-	<%
-	try {
-		Class.forName("org.postgresql.Driver");
-		int appointmentId = Integer.parseInt(request.getParameter("id"));
 
-		// url = ""
-		String connURL = "jdbc:postgresql://ep-green-mode-a1uewakv-pooler.ap-southeast-1.aws.neon.tech:5432/neondb?sslmode=require";
-		Connection conn = DriverManager.getConnection(connURL, "neondb_owner", "npg_CF5WgzPNhdf6");
-		Statement stmt = conn.createStatement();
-		String sqlStr = "SELECT id, username, email, role, number FROM member WHERE id = ?;";
-		PreparedStatement psmt = conn.prepareStatement(sqlStr);
-		psmt.setInt(1, appointmentId);
-		ResultSet rs = psmt.executeQuery();
-		while (rs.next()) {
-			int id = rs.getInt("id");
-			String username = rs.getString("username");
-			String email = rs.getString("email");
-			String role = rs.getString("role");
-			int phoneNo = rs.getInt("number");
-			user = new user(id, username, email, role, phoneNo);
-		}
-		conn.close();
-	} catch (Exception e) {
-		e.printStackTrace();
-	}
-	%>
 
 	<div class="sidebar close">
 		<ul class="nav-links">
@@ -831,99 +850,207 @@ to {
 			<i class="bx bx-menu"></i>
 
 			<div class="mainDiv">
-				<h1 style="margin-top: -1%;">Edit user details</h1>
+				<h1 style="margin-top: -1%;">Edit services details</h1>
 				<div
 					style="display: flex; gap: 3.5%; width: 100%; justify-content: space-evenly;">
 					<div class="divForInputs" style="width: 900px;">
-						<form method="post"
-							action="${pageContext.request.contextPath}/editUser">
+						<form method="post" action="${pageContext.request.contextPath}/editServices"
+							id="testforimage" enctype="multipart/form-data">
+							<%
+							try {
+								Class.forName("org.postgresql.Driver");
+								int appointmentId = Integer.parseInt(request.getParameter("id"));
+
+								// url = ""
+								String connURL = "jdbc:postgresql://ep-green-mode-a1uewakv-pooler.ap-southeast-1.aws.neon.tech:5432/neondb?sslmode=require";
+								Connection conn = DriverManager.getConnection(connURL, "neondb_owner", "npg_CF5WgzPNhdf6");
+								Statement stmt = conn.createStatement();
+								String sqlStr = "SELECT * FROM service INNER JOIN categories ON service.category_id = categories.id LEFT JOIN category_tag ON service.category_tag_id = category_tag.id WHERE service.id = ?;";
+								PreparedStatement psmt = conn.prepareStatement(sqlStr);
+								psmt.setInt(1, appointmentId);
+								ResultSet rs = psmt.executeQuery();
+								while (rs.next()) {
+									session.setAttribute("categoryForServiceSelected", rs.getString("category_name"));
+									session.setAttribute("categoryTagForServiceSelected", rs.getString("name"));
+							%>
 							<div style="display: flex; flex-direction: column;">
-								<label for="username" style="margin-top: 3.5%;">
-									<h2>Username</h2>
-								</label> <input type="text" class="form-control" name="username"
-									id="username" placeholder="Enter username"
-									value="<%=user.getUsername()%>">
+								<label for="name" style="margin-top: 3.5%;">
+									<h2>Name</h2>
+								</label> <input type="text" class="form-control" name="name" id="name"
+									placeholder="Enter name"
+									value="<%=rs.getString("service_name")%>">
 							</div>
 							<div
 								style="display: flex; flex-direction: column; margin-top: 3.5%;">
-								<label for="email">
-									<h2>Email</h2>
-								</label> <input type='email' name='email' id='email'
-									class='form-control' placeholder="Enter email"
-									value="<%=user.getEmail()%>" />
+								<label for="description">
+									<h2>Description</h2>
+								</label>
+								<textarea name="description" id="description"
+									class="form-control" placeholder="Enter description"
+									style="min-height: 100px;"><%=rs.getString("service_description")%></textarea>
 							</div>
 							<div
 								style="display: flex; flex-direction: column; margin-top: 3.5%;">
-								<label for="role">
-									<h2>Role</h2>
-								</label> <select name="role" id="role" class="form-select">
+								<label for="price">
+									<h2>Price</h2>
+								</label> <input type="number" id="price" class="form-control"
+									placeholder="Enter price" name="price" value="<%=rs.getInt("price")%>">
+							</div>
+							<div
+								style="display: flex; flex-direction: column; margin-top: 3.5%;">
+								<label for="location">
+									<h2>Location</h2>
+								</label> <input type="text" name="location" id="location"
+									class="form-control" placeholder="Enter location"
+									value="<%=rs.getString("location")%>">
+							</div>
+							<div
+								style="display: flex; flex-direction: column; margin-top: 3.5%;">
+								<label for="image">
+									<h2>Image</h2>
+								</label> <input type="file" name="image" id="image" accept="image/*">
+								<img src="<%=rs.getString("image_url")%>" alt="image" />
+							</div>
+							<%
+							}
+							conn.close();
+							} catch (Exception e) {
+							e.printStackTrace();
+							}
+							%>
+							
+							<div class="category-container">
+								<!-- First Category Selector -->
+								<div
+									style="display: flex; flex-direction: column; margin-top: 3.5%;"
+									class="category-selector">
+									<label for="serviceCategory">
+										<h2>Category</h2>
+									</label>
+
+									<div class="select-wrapper">
+										<select class="form-select category-select"
+											id="serviceCategory">
+											<option selected hidden>Select...</option>
+											
+											<%
+											try {
+												Class.forName("org.postgresql.Driver");
+
+												// url = ""
+												String connURL = "jdbc:postgresql://ep-green-mode-a1uewakv-pooler.ap-southeast-1.aws.neon.tech:5432/neondb?sslmode=require";
+												Connection conn = DriverManager.getConnection(connURL, "neondb_owner", "npg_CF5WgzPNhdf6");
+												Statement stmt = conn.createStatement();
+												String sqlStr = "SELECT * FROM categories";
+												ResultSet rs = stmt.executeQuery(sqlStr);
+												String categoryForCurrentService = (String) session.getAttribute("categoryForServiceSelected");
+												while (rs.next()) {
+													if (categoryForCurrentService.equals(rs.getString("category_name"))) {
+												out.println("<option selected value='" + rs.getString("id") + "'>" + rs.getString("category_name")
+														+ "</option>");
+													} else {
+												out.println("<option value='" + rs.getString("id") + "'>" + rs.getString("category_name") + "</option>");
+													}
+												}
+												conn.close();
+											} catch (Exception e) {
+												e.printStackTrace();
+											}
+											%>
+											<option value="add-new" class="add-category-option">+
+												Add New Category</option>
+										</select>
+									</div>
+
+									<div class="input-mode d-none">
+										<div class="input-group">
+											<input type="text" class="form-control new-category-input"
+												placeholder="Enter Category Name"
+												aria-label="New category name"> <span
+												class="input-group-text confirm-btn" role="button"> <svg
+													xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+													fill="currentColor" viewBox="0 0 16 16">
+                                                    <path
+														d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z" />
+                                                </svg>
+											</span>
+										</div>
+									</div>
+								</div>
+
+								<!-- Second Category Selector -->
+								<div
+									style="display: flex; flex-direction: column; margin-top: 3.5%;"
+									class="category-selector">
+									<label for="categoryTag">
+										<h2>Category Tag</h2>
+									</label>
+
+									<div class="select-wrapper">
+										<select class="form-select category-select" id="categoryTag">
 									<option selected hidden>Select...</option>
-									<%
-									if (user.getRole().equals("admin")) {
-										out.println("<option value='admin' selected>Admin</option>");
-										out.println("<option value='staff'>Staff</option>");
-										out.println("<option value='members'>Member</option>");
-									} else if (user.getRole().equals("staff")) {
-										out.println("<option value='admin'>Admin</option>");
-										out.println("<option value='staff' selected>Staff</option>");
-										out.println("<option value='members'>Member</option>");
-									} else if (user.getRole().equals("members")) {
-										out.println("<option value='admin'>Admin</option>");
-										out.println("<option value='staff'>Staff</option>");
-										out.println("<option value='members' selected>Member</option>");
-									}
-									%>
-								</select>
+											<%
+											try {
+												Class.forName("org.postgresql.Driver");
+
+												// url = ""
+												String connURL = "jdbc:postgresql://ep-green-mode-a1uewakv-pooler.ap-southeast-1.aws.neon.tech:5432/neondb?sslmode=require";
+												Connection conn = DriverManager.getConnection(connURL, "neondb_owner", "npg_CF5WgzPNhdf6");
+												String sqlStr = "select category_tag.id, category_tag.name, categories.category_name FROM category_tag INNER JOIN categories ON categories.id = category_tag.category_id WHERE categories.category_name = ?";
+												PreparedStatement pstmt = conn.prepareStatement(sqlStr);
+												String categoryForCurrentService = (String) session.getAttribute("categoryForServiceSelected");
+
+												pstmt.setString(1, categoryForCurrentService);
+												ResultSet rs = pstmt.executeQuery();
+												String categoryTagForCurrentService = (String) session.getAttribute("categoryTagForServiceSelected");
+												while (rs.next()) {
+													if (categoryTagForCurrentService.equals(rs.getString("name"))) {
+												out.println("<option selected value='" + rs.getString("id") + "'>" + rs.getString("name") + "</option>");
+													} else {
+												out.println("<option value='" + rs.getString("id") + "'>" + rs.getString("category_name") + "</option>");
+													}
+												}
+												conn.close();
+											} catch (Exception e) {
+												e.printStackTrace();
+											}
+											%>
+		<!-- 									<option value="Medical" selected>Medical</option>
+											<option value="Domestic">Domestic</option> -->
+											<option value="add-new" class="add-category-option">+
+												Add New Category Tags</option>
+										</select>
+									</div>
+
+									<div class="input-mode d-none">
+										<div class="input-group">
+											<input type="text" class="form-control new-category-input"
+												placeholder="Enter Category Name"
+												aria-label="New category name"> <span
+												class="input-group-text confirm-btn" role="button"> <svg
+													xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+													fill="currentColor" viewBox="0 0 16 16">
+                                                    <path
+														d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z" />
+                                                </svg>
+											</span>
+										</div>
+									</div>
+								</div>
 							</div>
-							<div
-								style="display: flex; flex-direction: column; margin-top: 3.5%;">
-								<label for="phoneNumber">
-									<h2>Phone Number</h2>
-								</label> <input type="tel" name="phoneNumber" id="phoneNumber"
-									class="form-control" placeholder="Enter Phone Number"
-									value="<%=user.getNumber()%>" />
-							</div>
+
+
+
 							<div
 								style="margin-top: 5%; display: flex; justify-content: flex-end; gap: 3%;">
 
 								<button type="submit" class="btn btn-primary px-5 py-2"
 									id="saveChanges" disabled>Save Changes</button>
+
 							</div>
-							<input type="hidden" value="<%=user.getId()%>" id="userId"
-								name="userId" />
+							<input type="hidden" value="<%= request.getParameter("id") %>" id="serviceId" name="serviceId" />
 
 						</form>
-						<hr style="margin-top: 7%;">
-
-						<!-- Button trigger modal -->
-						<button type="button" class="btn btn-danger"
-							style="width: 100%; margin-top: 2%; border-radius: 0.875rem;"
-							data-bs-toggle="modal" data-bs-target="#exampleModal">
-							Delete User</button>
-						<!-- Modal -->
-						<div class="modal fade" id="exampleModal" tabindex="-1"
-							aria-labelledby="exampleModalLabel" aria-hidden="true">
-							<div class="modal-dialog">
-								<div class="modal-content">
-									<div class="modal-header">
-										<h1 class="modal-title fs-5" id="exampleModalLabel">Are
-											you sure that you want to delete this user?</h1>
-										<button type="button" class="btn-close"
-											data-bs-dismiss="modal" aria-label="Close"></button>
-									</div>
-									<div class="modal-footer">
-										<button type="button" class="btn btn-secondary"
-											data-bs-dismiss="modal">No</button>
-										<form action="${pageContext.request.contextPath}/DeleteUserServlet" method="post">
-											<input type="hidden" value="<%=user.getId()%>" id="userIdForDelete"
-												name="userIdForDelete" />
-											<button type="submit" class="btn btn-primary">Yes</button>
-
-										</form>
-									</div>
-								</div>
-							</div>
-						</div>
 					</div>
 				</div>
 
@@ -932,7 +1059,6 @@ to {
 		</div>
 	</section>
 
-	</section>
 	<script src="https://unpkg.com/boxicons@2.1.3/dist/boxicons.js"></script>
 
 	<script
@@ -970,7 +1096,92 @@ to {
                     }
                 });
             });
+
         })
+    	document.getElementById("categoryTag").addEventListener("focus",(e)=>{
+    		let select = document.getElementById("categoryTag")
+            let html = `
+                <option hidden>Select...</option>
+                `
+			fetch("http://localhost:8080/Java_Assignment/GetCategoryTagsForSelect?category=" + document.getElementById("serviceCategory").value)
+			.then(response => response.json())
+			.then((result)=>{
+				result.forEach((result)=>{
+					html+= "<option value='" + result.id + "'>" + result.name + "</option>";
+				})
+				html += "<option value='add-new' class='add-category-option'>+ Add New Category</option>"
+				select.innerHTML = html
+			})
+		}) 
+        document.querySelectorAll('.category-selector').forEach(selector => {
+            const categorySelect = selector.querySelector('.category-select');
+            const selectWrapper = selector.querySelector('.select-wrapper');
+            const inputMode = selector.querySelector('.input-mode');
+            const newCategoryInput = selector.querySelector('.new-category-input');
+            const confirmBtn = selector.querySelector('.confirm-btn');
+
+            // When "Add New Category" is selected
+            categorySelect.addEventListener('change', function () {
+                if (this.value === 'add-new') {
+                    selectWrapper.classList.add('d-none');
+                    inputMode.classList.remove('d-none');
+                    newCategoryInput.focus();
+                }
+            });
+
+            // When confirm button is clicked
+            confirmBtn.addEventListener('click', function () {
+                addNewCategory(selector);
+            });
+
+            // When Enter is pressed in input
+            newCategoryInput.addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') {
+                    addNewCategory(selector);
+                }
+            });
+        });
+/*         document.getElementById("testforimage").addEventListener("submit",(e)=>{
+            e.preventDefault();
+            console.log(document.getElementById('image').value)
+        }) */
+
+        function addNewCategory(selector) {
+            const categorySelect = selector.querySelector('.category-select');
+            const selectWrapper = selector.querySelector('.select-wrapper');
+            const inputMode = selector.querySelector('.input-mode');
+            const newCategoryInput = selector.querySelector('.new-category-input');
+
+            const newCategory = newCategoryInput.value.trim();
+
+            if (newCategory) {
+                // Create new option before the "Add New Category" option
+                const option = document.createElement('option');
+                option.value = newCategory.toLowerCase().replace(/\s+/g, '-');
+                option.textContent = newCategory;
+
+                // Insert before the last option (Add New Category)
+                const addNewOption = categorySelect.querySelector('option[value="add-new"]');
+                categorySelect.insertBefore(option, addNewOption);
+
+                // Select the new category
+                categorySelect.value = option.value;
+
+                // Reset input
+                newCategoryInput.value = '';
+            } else {
+                // If no text entered, go back to the previously selected option
+                const currentValue = categorySelect.value;
+                if (currentValue === 'add-new') {
+                    // If it was on "Add New", select the first option
+                    categorySelect.selectedIndex = 0;
+                }
+            }
+
+            // Always show select when tick is clicked
+            inputMode.classList.add('d-none');
+            selectWrapper.classList.remove('d-none');
+        }
     </script>
 </body>
 

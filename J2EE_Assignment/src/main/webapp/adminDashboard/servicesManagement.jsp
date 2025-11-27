@@ -1,10 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
-    <%@ page import="java.security.*"%>
-<%@ page import="java.nio.charset.StandardCharsets"%>
-<%@ page import="java.util.Base64"%>
-<%@ page import="java.sql.*" %>
-<%@ page import="java.util.*" %>
 <!DOCTYPE html>
 <!-- Created by CodingLab |www.youtube.com/CodingLabYT-->
 <html lang="en" dir="ltr">
@@ -542,44 +537,17 @@
                         </tr>
                     </thead>
                     <tbody>
-                                        <%
-            		try {
-            			Class.forName("org.postgresql.Driver");
-            			String connURL = "jdbc:postgresql://ep-green-mode-a1uewakv-pooler.ap-southeast-1.aws.neon.tech:5432/neondb?sslmode=require";
-            			Connection conn = DriverManager.getConnection(connURL,"neondb_owner","npg_CF5WgzPNhdf6");
-            			Statement stmt = conn.createStatement();
-            			String sqlStr = "SELECT service.id, service.service_name, service.service_description, service.location, service.price, categories.category_name, category_tag.name FROM service INNER JOIN categories ON categories.id = service.category_id LEFT JOIN category_tag ON category_tag.id = service.category_tag_id ORDER BY service.id;";
-            			ResultSet rs = stmt.executeQuery(sqlStr);
-            			while (rs.next()) {
-            				int id = rs.getInt("id");
-  
-            				String name = rs.getString("service_name");
-
-            				String description = rs.getString("service_description");
-            				String location = rs.getString("location");
-            				int price = rs.getInt("price");
-            				String category = rs.getString("category_name");
-            				String categoryTag = rs.getString("name");
-            				if (categoryTag == null){
-            					categoryTag = "Nil";
-            				}
-            				out.println("<tr>");
-            				out.println("<th scope='row'>" + id + "</th>");
-            				out.println("<td>" + name +"</td>");
-            				out.println("<td>" + description  + "</td>");
-            				out.println("<td>" + price + "</td>");
-            				out.println("<td>" + location + "</td>");
-            				out.println("<td>" + category + "</td>");
-            				out.println("<td>" + categoryTag + "</td>");
-            				out.println("<td><a href='editServices.jsp?id=" + id + "'><i class='bx bx-edit'></i></a></td>");
-            				out.println("<td><a href='deleteServicesServlet.jsp?id="+ id + "'><i class='bx bx-trash'></i></a></td>");
-            				out.println("</tr>");
-            			}
-            			conn.close();
-            		} catch (Exception e){
-            			out.println("Error: "+ e);
-            		}
-                    %>
+                        <tr>
+                            <th scope="row">1</th>
+                            <td>Counselling</td>
+                            <td>A confidential and supportive counselling service for seniors facing emotional stress, loneliness, anxiety, grief, or life transitions. Certified counsellors provide empathetic listening, coping strategies, and mental wellness guidance. Sessions help seniors build emotional resilience, strengthen relationships, and improve overall well-being in a safe, non-judgmental environment.</td>
+                            <td>40</td>
+                            <td>Nil</td>
+                            <td>Caregiving</td>
+                            <td>Medical</td>
+                            <td><i class="bx bx-edit"></i></td>
+                            <td><i class="bx bx-trash"></i></td>
+                        </tr>
                     </tbody>
                 </table>
             </div>

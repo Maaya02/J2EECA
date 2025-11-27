@@ -4,9 +4,9 @@
 <%@ page import="java.security.*"%>
 <%@ page import="java.nio.charset.StandardCharsets"%>
 <%@ page import="java.util.*"%>
-<%@ page import="templateForCategories.categories"%>
 <%@ page import="java.util.Objects" %>
 <%@ page import="services.*" %>
+<%@ page import="templateForCategories.*" %>
 	
 <!DOCTYPE html>
 <html lang="en">

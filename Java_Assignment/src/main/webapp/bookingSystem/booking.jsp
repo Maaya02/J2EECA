@@ -419,7 +419,7 @@ to {
 							<label for="phoneNumber">
 								<h2>Phone Number</h2>
 							</label> <input type="tel" name="phoneNumber" id="phoneNumber"
-								class="form-control widthOfInput" placeholder="+65 9876 5432">
+								class="form-control widthOfInput" placeholder="98765432">
 						</div>
 						<div style="display: flex; flex-direction: column;">
 							<label for="name">

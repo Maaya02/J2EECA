@@ -1,5 +1,12 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
+        <%@ page import="java.sql.*"%>
+<%@ page import="java.security.*"%>
+<%@ page import="java.nio.charset.StandardCharsets"%>
+<%@ page import="java.util.Base64"%>
+<%@ page import="java.sql.Timestamp" %>
+<%@ page import="java.util.*" %>
+<%@ page import="bookings.ServiceBooking" %>
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
 
@@ -11,6 +18,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
+        
     <style>
         :root {
             --colour-sp: #F6323E;
@@ -457,6 +465,21 @@
 </head>
 
 <body>
+ 	<%
+	String name = (String) session.getAttribute("name");
+	if (name == null) {
+		response.sendRedirect("http://localhost:8080/Java_Assignment/authentication/login.jsp");
+		return;
+	}
+	Integer memberID = (Integer) session.getAttribute("member_id");
+	if (memberID == null) {
+		out.print("couldnt get memberID");
+	}
+	String role = (String) session.getAttribute("role");
+	if (!role.equals("admin")){
+		response.sendRedirect("errorScreen.jsp");
+	}
+	%> 
     <div class="sidebar close">
         <ul class="nav-links">
             <li>
@@ -527,31 +550,37 @@
                             <th scope="col">role</th>
                             <th scope="col">Phone no</th>
                             <th scope="col"><i></i></th>
-                            <th scope="col"><i></i></th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <th scope="row">
-                                <div class="flexDiv">
-                                    1
-                                </div>
-                            </th>
-                            <td>asdas</td>
-                            <td>
-                                example@eexample.com
-                            </td>
-                            <td> <select name="role1" id="role1" class="form-select" onchange="">
-                                    <option value="admin">Admin</option>
-                                    <option value="admin">Staff</option>
-
-                                    <option value="admin">Members</option>
-
-                                </select></td>
-                            <td>91234567</td>
-                            <td><i class="bx bx-edit"></i></td>
-                            <td><i class="bx bx-trash"></i></td>
-                        </tr>
+                    <%
+            		try {
+            			Class.forName("org.postgresql.Driver");
+            			String connURL = "jdbc:postgresql://ep-green-mode-a1uewakv-pooler.ap-southeast-1.aws.neon.tech:5432/neondb?sslmode=require";
+            			Connection conn = DriverManager.getConnection(connURL,"neondb_owner","npg_CF5WgzPNhdf6");
+            			Statement stmt = conn.createStatement();
+            			String sqlStr = "SELECT id, username,role,number,email FROM member ORDER BY id;";
+            			ResultSet rs = stmt.executeQuery(sqlStr);
+            			while (rs.next()) {
+            				int id = rs.getInt("id");
+            				String username = rs.getString("username");
+            				String email = rs.getString("email");
+            				String roles = rs.getString("role");
+            				int phoneNo = rs.getInt("number");
+            				out.println("<tr>");
+            				out.println("<th scope='row'>" + id + "</th>");
+            				out.println("<td>" + username +"</td>");
+            				out.println("<td>" + email  + "</td>");
+            				out.println("<td>" + roles + "</td>");
+            				out.println("<td>" + phoneNo + "</td>");
+            				out.println("<td><a href='editUserDetails.jsp?id=" + id + "'><i class='bx bx-edit'></i></a></td>");
+            				out.println("</tr>");
+            			}
+            			conn.close();
+            		} catch (Exception e){
+            			out.println("Error: "+ e);
+            		}
+                    %>
                     </tbody>
                 </table>
             </div>
